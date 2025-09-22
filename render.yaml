@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: roadguide
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn core.wsgi:application --preload --bind 0.0.0.0:10000"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: core.settings
