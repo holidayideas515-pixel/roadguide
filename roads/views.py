@@ -1,4 +1,5 @@
-from django.shortcuts import render  # ← これがないと NameError になります
+from django.shortcuts import render
+from django.http import JsonResponse
 from django.db.models import Q
 
 from rest_framework import viewsets, filters as drf_filters
@@ -55,8 +56,7 @@ class RoadViewSet(viewsets.ModelViewSet):
 def map_page(request):
     return render(request, "roads/map.html")
 
-    from django.http import HttpResponse
 
-
+# ヘルスチェック（/healthz/）
 def healthz(request):
-    return HttpResponse("ok", content_type="text/plain")
+    return JsonResponse({"status": "ok"})
