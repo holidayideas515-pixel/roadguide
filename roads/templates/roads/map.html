@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Road Map</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html, body, #map { height: 100%; margin: 0; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+ <script>
+  // 地図初期化（仮の位置。後で全ルートに合わせて自動でズームします）
+  var map = L.map('map').setView([35.6, 139.6], 8);
+
+  // タイル
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+
+  // APIから取得 → すべてのラインを追加 → まとめてfitBounds
+  fetch('/api/roads/')
+    .then(res => res.json())
+    .then(list => {
+      const layers = [];
+
+      list.forEach(road => {
+        if (road.geom_geojson) {
+          const layer = L.geoJSON(road.geom_geojson, { weight: 3 }).addTo(map);
+          layer.bindPopup(`<b>${road.name}</b><br>${road.description ?? ""}`);
+          layers.push(layer);
+        }
+      });
+
+      if (layers.length > 0) {
+        const group = L.featureGroup(layers);
+        const bounds = group.getBounds();
+        map.fitBounds(bounds.pad(0.1)); // 10% 余白をつけて自動ズーム
+      }
+    })
+    .catch(console.error);
+</script>
+</body>
+</html>
